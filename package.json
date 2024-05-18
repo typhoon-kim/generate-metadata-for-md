@@ -1,12 +1,36 @@
 {
-  "name": "generate-metadata-for-md",
-  "version": "1.0.1",
-  "description": "",
-  "main": "index.js",
+  "name": "@typh007/markdown-metadata",
+  "version": "0.0.1",
+  "description": "generate metadata of markdown files",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_PATH=lib node_modules/.bin/vows *test.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "markdown",
+    "metadata"
+  ],
+  "author": {
+    "name": "typhoon-kim",
+    "email": "typh007.kim@gmail.com",
+    "url": ""
+  },
+  "contributes": [],
+  "homepage": "https://typhoon-kim.github.io/generate-metadata-of-markdown/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/typhoon-kim/generate-metadata-of-markdown"
+  },
+  "bugs": {
+    "url": "https://github.com/typhoon-kim/generate-metadata-of-markdown/issues",
+    "email": "typh007.kim@gmail.com"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "license": "MIT",
+  "bin": {},
+  "files": [],
+  "preferGlobal": true,
+  "type": "module"
 }
