@@ -11,13 +11,36 @@ async function extractTagsAndLinks(content) {
     const tagPattern = /(^|\s)#(\w+)\b/g;
     const tags = [...content.matchAll(tagPattern)].map(match => match[2]);
 
-    // 하이퍼링크 추출: 일반 하이퍼링크와 옵시디언 링크 둘 다 처리
-    const linkPattern = /\[([^\]]+)\]\(([^)]+)\)|\[\[([^\]]+)\]\]/g;
-    const links = [...content.matchAll(linkPattern)].map(match => match[2] || match[3]);
+    // 하이퍼링크 및 옵시디언 링크 추출 및 구분
+    const linkPattern = /(?<!!)\[([^\]]+)\]\(([^)"]+)(?:\s+"[^"]*")?\)|\[\[([^\]|]+)\|?([^\]]+)?\]\]/g;
+    const imageSrcPattern = /<img[^>]+src=["'](http[^"']+)["']/g;
+    const referenceLinkPattern = /\[(\d+)\]:\s*(http[^\s]+)\s*"([^"]*)"/g;
 
-    // 중복 제거 - Set은 고유한 값만 저장하기 때문에 중목된 내용을 제거할 수 있다.
+    const links = [...content.matchAll(linkPattern)].map(match => {
+        if (match[2] && !match[2].startsWith('#')) {
+            return { type: 'hyperlink', alias: match[1], url: match[2] };
+        } else if (match[3]) {
+            return { type: 'obsidian', alias: match[4] || match[3], url: match[3] };
+        }
+    });
+
+    // 이미지 태그의 src 속성을 포함한 링크 제거
+    const images = [...content.matchAll(imageSrcPattern)].map(match => match[1]);
+
+    // 레퍼런스 링크 추출
+    const referenceLinks = [...content.matchAll(referenceLinkPattern)].map(match => {
+        return { type: 'hyperlink', alias: match[3], url: match[2] };
+    });
+
+    // 모든 링크 합치기
+    const allLinks = links.concat(referenceLinks);
+
+    // 이미지 링크와 내부 하이퍼링크를 제외한 링크만 남기기
+    const filteredLinks = allLinks.filter(link => link && !images.includes(link.url));
+
+    // 중복 제거-- Set을 사용하여 중복되지 않도록
     const uniqueTags = [...new Set(tags)];
-    const uniqueLinks = [...new Set(links)];
+    const uniqueLinks = [...new Set(filteredLinks.map(JSON.stringify))].map(JSON.parse);
 
     return { tags: uniqueTags, links: uniqueLinks };
 }
