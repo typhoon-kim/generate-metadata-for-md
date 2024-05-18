@@ -1,10 +1,11 @@
 import fs from 'fs/promises';
 import { basename, dirname, extname, join } from 'path';
 import CONSTANTS from './constants.js';
+import { createHash } from 'crypto';
 
 const noteList = [];
-const linkList = [];
-const tagList = [];
+let linkList = [];
+let tagList = [];
 
 async function extractTagsAndLinks(content) {
     // 태그 추출: '#' 다음에 공백이나 문자열 경계가 와야 함
@@ -36,7 +37,7 @@ async function extractTagsAndLinks(content) {
     const allLinks = links.concat(referenceLinks);
 
     // 이미지 링크와 내부 하이퍼링크를 제외한 링크만 남기기
-    const filteredLinks = allLinks.filter(link => link && !images.includes(link.url));
+    const filteredLinks = allLinks.filter(link => link && !images.includes(link.url)).filter(link => link && !link.alias.startsWith("!["));
 
     // 중복 제거-- Set을 사용하여 중복되지 않도록
     const uniqueTags = [...new Set(tags)];
@@ -52,35 +53,44 @@ async function generateNoteMeta(file) {
             const files = await fs.readdir(file);
             await Promise.all(files.map(f => generateNoteMeta(join(file, f))));
         } else if (extname(file) === ".md") {
-            console.log("md파일--");
-            console.log(`filename: ${basename(file)}, dirname: ${dirname(file)}, stat: ${stat}`);
+            // console.log("md파일--");
+            // console.log(`filename: ${basename(file)}, dirname: ${dirname(file)}, stat: ${stat}`);
 
             const content = await fs.readFile(file, "utf8");
-            const {tags, links} = await extractTagsAndLinks(content);
+            const { tags, links } = await extractTagsAndLinks(content);
+
+            //const hash = createHash('sha256').update(content).digest('hex'); // 파일 내용에 대한 SHA-256 해시 계산
+            const hash = createHash('md5').update(content).digest('hex'); // 파일 내용에 대한 MD5 해시 계산
 
             noteList.push({
-                id: "",
+                id: hash,
                 title: basename(file),
                 route: dirname(file),
                 created: stat.ctime,
                 updated: stat.mtime,
                 tags: tags, // 태그들
-                links: links, // 들어오는 링크, 나가는 링크, 하이퍼링크
+                links: links.filter((link) => link.type === 'hyperlink'), // 들어오는 링크, 나가는 링크, 하이퍼링크
             });
+
+            tagList = tagList.concat(tags);
+            linkList = linkList.concat(links.filter(link => link.type === 'obsidian').map((link) => ({ ...link, from: hash })));
+
         } else {
-            console.log("attach파일--");
-            console.log(file);
+            // console.log("attach파일--");
+            // console.log(file);
         }
     } catch (err) {
-        console.log(`${file} >> ${err.code}`);
+        // console.log(`${file} >> ${err.code}`);
     }
 }
 
 async function generateNoteList(files) {
     await Promise.all(files.map(file => generateNoteMeta(file)));
-    console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${noteList.length} Done!`);
-    console.log(noteList);
+    // console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${noteList.length} Done!`);
+    // console.log(noteList);
     await fs.writeFile(CONSTANTS.EXPORT_NOTE_LIST, JSON.stringify(noteList, null, 2), "utf8");
+    await fs.writeFile(CONSTANTS.EXPORT_TAG_LIST, JSON.stringify([...new Set(tagList)], null, 2), "utf8");
+    await fs.writeFile(CONSTANTS.EXPORT_LINK_LIST, JSON.stringify(linkList, null, 2), "utf8");
 }
 
 generateNoteList(CONSTANTS.PUBLISH_PATH);
