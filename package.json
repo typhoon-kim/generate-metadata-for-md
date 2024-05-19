@@ -1,12 +1,12 @@
 {
   "name": "@typh007/markdown-metadata",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "generate metadata of markdown files. I use it for personal projects. I will consider expandability in the future. I'm waiting for your opinion.",
   "main": "main.js",
   "types": "main.d.ds",
   "scripts": {
     "test": "",
-    "examples" : "",
+    "examples": "",
     "build": ""
   },
   "keywords": [
