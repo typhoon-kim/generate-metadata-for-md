@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
+import { existsSync } from 'fs';
 import { basename, dirname, extname, join } from 'path';
-import CONSTANTS from './constants.js';
+import { CONSTANTS as CONST } from './main.js';
 import { createHash } from 'crypto';
 
 const noteList = [];
@@ -84,13 +85,15 @@ async function generateNoteMeta(file) {
     }
 }
 
-async function generateNoteList(files) {
+export async function generateNoteList(files) {
+    if (typeof files == "string" ) files = new Array(files);
+
     await Promise.all(files.map(file => generateNoteMeta(file)));
     // console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${noteList.length} Done!`);
     // console.log(noteList);
-    await fs.writeFile(CONSTANTS.EXPORT_NOTE_LIST, JSON.stringify(noteList, null, 2), "utf8");
-    await fs.writeFile(CONSTANTS.EXPORT_TAG_LIST, JSON.stringify([...new Set(tagList)], null, 2), "utf8");
-    await fs.writeFile(CONSTANTS.EXPORT_LINK_LIST, JSON.stringify(linkList, null, 2), "utf8");
-}
+    if (!existsSync(CONST.EXPORT_ROOT)) await fs.mkdir(CONST.EXPORT_ROOT);
 
-generateNoteList(CONSTANTS.PUBLISH_PATH);
+    await fs.writeFile(join(CONST.EXPORT_ROOT, CONST.NOTE_LIST), JSON.stringify(noteList, null, 2), "utf8");
+    await fs.writeFile(join(CONST.EXPORT_ROOT, CONST.TAG_LIST), JSON.stringify([...new Set(tagList)], null, 2), "utf8");
+    await fs.writeFile(join(CONST.EXPORT_ROOT, CONST.LINK_LIST), JSON.stringify(linkList, null, 2), "utf8");
+}
