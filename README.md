@@ -1,5 +1,6 @@
 # **Generate Metadata of Markdown**
-English | [한국어](./README_ko.md)
+
+English | [한국어](https://typhoon-kim.github.io/generate-metadata-of-markdown/README_ko.html)
 
 [![npm version](https://badge.fury.io/js/@typh007%2Fmarkdown-metadata.svg)](https://badge.fury.io/js/@typh007%2Fmarkdown-metadata)
 
