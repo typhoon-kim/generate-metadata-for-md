@@ -54,21 +54,13 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
             const files = await fs.readdir(file);
             await Promise.all(files.map(f => generateNoteMeta(join(file, f), ROOT, withOutRoot)));
         } else if (extname(file) === ".md") {
-            // console.log("md파일--");
-            // console.log(`filename: ${basename(file)}, dirname: ${dirname(file)}, stat: ${stat}`);
 
             const content = await fs.readFile(file, "utf8");
             const { tags, links } = await extractTagsAndLinks(content);
 
-            //const hash = createHash('sha256').update(content).digest('hex'); // 파일 내용에 대한 SHA-256 해시 계산
-            const hash = createHash('md5').update(content).digest('hex'); // 파일 내용에 대한 MD5 해시 계산
-
             const path = normalize(dirname(file));
-            console.log("==============================================")
-            console.log(normalize(ROOT))
-            console.log(path)
-            console.log(path.substring(normalize(ROOT).length));
-            console.log("==============================================")
+            //const hash = createHash('sha256').update(file + content).digest('hex'); // 파일 내용에 대한 SHA-256 해시 계산
+            const hash = createHash('md5').update(file + content).digest('hex'); // 파일 내용에 대한 MD5 해시 계산
 
             noteList.push({
                 id: hash,
@@ -81,15 +73,12 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
             });
 
             tagList = tagList.concat(tags);
-            linkList = linkList.concat(links.filter(link => link.type === 'obsidian').map((link) => ({ ...link, from: hash })));
+            linkList = linkList.concat(links.filter(link => link.type === 'obsidian').map((link) => ({from: hash, ...link })));
 
         } else {
-            // console.log("attach파일--");
-            // console.log(file);
             console.log(`Skipping non-markdown file: ${file}`);
         }
     } catch (err) {
-        // console.log(`${file} >> ${err.code}`);
         console.error(`Error processing file ${file}: ${err.message}`);
     }
 }
@@ -98,8 +87,6 @@ export async function generateNoteList(files, withOutRoot) {
     if (typeof files == "string" ) files = new Array(files);
 
     await Promise.all(files.map(file => generateNoteMeta(file, file, withOutRoot)));
-    // console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${noteList.length} Done!`);
-    // console.log(noteList);
     console.log(`${noteList.length} notes processed!`);
     if (!existsSync(CONST.EXPORT_ROOT)) await fs.mkdir(CONST.EXPORT_ROOT);
 
