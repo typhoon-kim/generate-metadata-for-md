@@ -4,10 +4,10 @@ English | [한국어](https://typhoon-kim.github.io/generate-metadata-of-markdow
 
 [![npm version](https://badge.fury.io/js/@typh007%2Fmarkdown-metadata.svg)](https://badge.fury.io/js/@typh007%2Fmarkdown-metadata)
 
-This package traverses the directory and generates metadata `JSON`file of `markdown` files.
+This package traverses directories and generates metadata `JSON` files for `markdown` files.
 
-It was created for the purpose of applying it to personal projects. [publish-markdown-notebook](https://github.com/typhoon-kim/publish-markdown-notes)  
-I'm going to consider scalability going forward. Please let me know if you have any opinions. 😉
+This package was created for use in personal projects. [publish-markdown-notebook](https://github.com/typhoon-kim/publish-markdown-notes)
+It is planned to be expanded for more versatile use. If you have any suggestions, please let me know. 😉
 
 ## Installation
 
@@ -25,7 +25,7 @@ const publishPath = "your markdown files path";
 generateNoteList(publishPath);
 ```
 
-`publishPath` can be a `string array` type or `string` type.
+`publishPath` can be either a `string array` or a `string`.
 
 ```javascript
 const publishPath = [
@@ -36,11 +36,20 @@ const publishPath = [
 const publishPaht = "path";
 ```
 
+You can specify the second argument `withOutRoot` in `generateNoteList` to exclude the root path from the file paths in `note_list`.
+
+```javascript
+import { generateNoteList } from "@typh007/markdown-metadata";
+
+// Example usage
+const publishPath = "your markdown files path";
+generateNoteList(publishPath, withOutRoot); // true or false -- default: false
+```
+
 ## Output
 
-Calling the `generateNoteList` function creates files `link_list.json`, `note_list.json` and `tag_list.json` in `./data` path.
-
-To modify the file creation path, set the path to the `setDataRoot` function.
+When the `generateNoteList` function is called, it generates the `note_list.json`, `link_list.json`, and `tag_list.json` files in the `./data` path by default.  
+To change the output path, set the path using the `setDataRoot` function.
 
 ```javascript
 import { generateNoteList, setDataRoot } from "@typh007/markdown-metadata";
@@ -49,31 +58,31 @@ setDataRoot("export path");
 generateNoteList("target path");
 ```
 
-`note_list.json`contains note-specific information.
+`note_list.json` contains information for each note, including the following fields:
 
-- id: MD5 hash informatin for notes
-- title: name of note (file name)
-- route: path of note (file path)
-- created: datetime of creation of the note
-- updated: datetime of revision of the note
-- tags: tags in note
-- links: hyperlinks in note
+- id: MD5 hash of the note
+- title: Name of the note (file name)
+- route: Path of the note (file path)
+- created: Creation date and time of the note
+- updated: Last modified date and time of the note
+- tags: List of tags included in the note
+- links: Hyperlinks included in the note
 
-`link_list.json`has an `Obsidian Backlink` entry for all notes.
+`link_list.json` contains Obsidian backlink entries for all notes, including the following fields:
 
-- from: MD5 hash informatin for notes.
-- type: "obsidian"
-- alias: note alias
-- url: path of note
+- from: MD5 hash of the note
+- type: ‘obsidian’
+- alias: Note alias
+- url: Path of the note
 
-`tag_list.json` has a list of markdown tags for all files.
+`tag_list.json` contains the list of markdown tags for all files.
 
 ## 🔭 Future Features
 
-- [ ] **Compares hash checksums to reflect only information in notes that have been added and changed**
-- [ ] **Example creation**
-- [ ] **Create a script**
-- [ ] **CommonJS, TypeScript d.ts**
+- [ ] **Compare hash checksums to reflect only added or changed note information**
+- [ ] **Create examples**
+- [ ] **Create scripts**
+- [ ] **Support CommonJS module, TypeScript d.ts**
 
 ## 🤝 Contributing
 
@@ -84,4 +93,4 @@ Contributions are welcome!
 This project is licensed under the [MIT License](LICENSE).
 
 ---
-*If you have any further questions or need additional assistance, feel free to ask!*
+*If you have any further questions or need support, please feel free to contact me!*

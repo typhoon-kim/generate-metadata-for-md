@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import { existsSync } from 'fs';
-import { basename, dirname, extname, join } from 'path';
+import { basename, dirname, extname, join, normalize } from 'path/posix';
 import { CONSTANTS as CONST } from './main.js';
 import { createHash } from 'crypto';
 
@@ -47,12 +47,12 @@ async function extractTagsAndLinks(content) {
     return { tags: uniqueTags, links: uniqueLinks };
 }
 
-async function generateNoteMeta(file) {
+async function generateNoteMeta(file, ROOT, withOutRoot) {
     try {
         const stat = await fs.stat(file);
         if (stat.isDirectory()) {
             const files = await fs.readdir(file);
-            await Promise.all(files.map(f => generateNoteMeta(join(file, f))));
+            await Promise.all(files.map(f => generateNoteMeta(join(file, f), ROOT, withOutRoot)));
         } else if (extname(file) === ".md") {
             // console.log("md파일--");
             // console.log(`filename: ${basename(file)}, dirname: ${dirname(file)}, stat: ${stat}`);
@@ -63,10 +63,17 @@ async function generateNoteMeta(file) {
             //const hash = createHash('sha256').update(content).digest('hex'); // 파일 내용에 대한 SHA-256 해시 계산
             const hash = createHash('md5').update(content).digest('hex'); // 파일 내용에 대한 MD5 해시 계산
 
+            const path = normalize(dirname(file));
+            console.log("==============================================")
+            console.log(normalize(ROOT))
+            console.log(path)
+            console.log(path.substring(normalize(ROOT).length));
+            console.log("==============================================")
+
             noteList.push({
                 id: hash,
                 title: basename(file),
-                route: dirname(file),
+                route: withOutRoot ? path.substring(normalize(ROOT).length) : path,
                 created: stat.ctime,
                 updated: stat.mtime,
                 tags: tags, // 태그들
@@ -79,18 +86,21 @@ async function generateNoteMeta(file) {
         } else {
             // console.log("attach파일--");
             // console.log(file);
+            console.log(`Skipping non-markdown file: ${file}`);
         }
     } catch (err) {
         // console.log(`${file} >> ${err.code}`);
+        console.error(`Error processing file ${file}: ${err.message}`);
     }
 }
 
-export async function generateNoteList(files) {
+export async function generateNoteList(files, withOutRoot) {
     if (typeof files == "string" ) files = new Array(files);
 
-    await Promise.all(files.map(file => generateNoteMeta(file)));
+    await Promise.all(files.map(file => generateNoteMeta(file, file, withOutRoot)));
     // console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${noteList.length} Done!`);
     // console.log(noteList);
+    console.log(`${noteList.length} notes processed!`);
     if (!existsSync(CONST.EXPORT_ROOT)) await fs.mkdir(CONST.EXPORT_ROOT);
 
     await fs.writeFile(join(CONST.EXPORT_ROOT, CONST.NOTE_LIST), JSON.stringify(noteList, null, 2), "utf8");
