@@ -67,6 +67,8 @@ generateNoteList("target path");
 - updated: Last modified date and time of the note
 - tags: List of tags included in the note
 - links: Hyperlinks included in the note
+- summary: 300 characters or less document summary 🆕
+- images: The string array of the image src in the document 🆕
 
 `link_list.json` contains Obsidian backlink entries for all notes, including the following fields:
 

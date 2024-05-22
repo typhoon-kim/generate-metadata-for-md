@@ -3,6 +3,7 @@ import { existsSync } from 'fs';
 import { basename, dirname, extname, join, normalize } from 'path/posix';
 import { CONSTANTS as CONST } from './main.js';
 import { createHash } from 'crypto';
+import { marked } from 'marked'; // 마크다운 파서 라이브러리
 
 const noteList = [];
 let linkList = [];
@@ -44,7 +45,16 @@ async function extractTagsAndLinks(content) {
     const uniqueTags = [...new Set(tags)];
     const uniqueLinks = [...new Set(filteredLinks.map(JSON.stringify))].map(JSON.parse);
 
-    return { tags: uniqueTags, links: uniqueLinks };
+    return { tags: uniqueTags, links: uniqueLinks, images };
+}
+
+function extractSummary(content) {
+    // 마크다운을 HTML로 변환
+    const htmlContent = marked(content);
+    // HTML 태그 제거
+    const plainText = htmlContent.replace(/<[^>]*>/g, '');
+    // 첫 100자의 텍스트 추출
+    return plainText.slice(0, 300).replace(/\n/g, ' ') + (plainText.length > 300 ? '...' : '');
 }
 
 async function generateNoteMeta(file, ROOT, withOutRoot) {
@@ -56,11 +66,13 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
         } else if (extname(file) === ".md") {
 
             const content = await fs.readFile(file, "utf8");
-            const { tags, links } = await extractTagsAndLinks(content);
+            const { tags, links, images } = await extractTagsAndLinks(content);
 
             const path = normalize(dirname(file));
             //const hash = createHash('sha256').update(file + content).digest('hex'); // 파일 내용에 대한 SHA-256 해시 계산
             const hash = createHash('md5').update(file + content).digest('hex'); // 파일 내용에 대한 MD5 해시 계산
+
+            const summary = extractSummary(content);
 
             noteList.push({
                 id: hash,
@@ -70,6 +82,8 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
                 updated: stat.mtime,
                 tags: tags, // 태그들
                 links: links.filter((link) => link.type === 'hyperlink'), // 들어오는 링크, 나가는 링크, 하이퍼링크
+                summary: summary,
+                images: images
             });
 
             tagList = tagList.concat(tags);
