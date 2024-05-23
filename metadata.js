@@ -3,7 +3,7 @@ import { existsSync } from 'fs';
 import { basename, dirname, extname, join, normalize } from 'path/posix';
 import { CONSTANTS as CONST } from './main.js';
 import { createHash } from 'crypto';
-import { marked } from 'marked'; // 마크다운 파서 라이브러리
+import { marked } from 'marked';
 
 const noteList = [];
 let linkList = [];
@@ -57,6 +57,21 @@ function extractSummary(content) {
     return plainText.slice(0, 300).replace(/\n/g, ' ') + (plainText.length > 300 ? '...' : '');
 }
 
+function extractOutline(content) {
+    const outline = [];
+    const tokens = marked.lexer(content);
+
+    tokens.forEach(token => {
+        if (token.type == "heading") {
+            const level = token.depth;
+            const title = token.text;
+            outline.push({ [level]: title });
+        }
+    });
+
+    return outline;
+}
+
 async function generateNoteMeta(file, ROOT, withOutRoot) {
     try {
         const stat = await fs.stat(file);
@@ -72,6 +87,8 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
             //const hash = createHash('sha256').update(file + content).digest('hex'); // 파일 내용에 대한 SHA-256 해시 계산
             const hash = createHash('md5').update(file + content).digest('hex'); // 파일 내용에 대한 MD5 해시 계산
 
+            const outline = extractOutline(content);
+
             const summary = extractSummary(content);
 
             noteList.push({
@@ -80,6 +97,7 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
                 route: withOutRoot ? path.substring(normalize(ROOT).length) : path,
                 created: stat.ctime,
                 updated: stat.mtime,
+                outline: outline,
                 tags: tags, // 태그들
                 links: links.filter((link) => link.type === 'hyperlink'), // 들어오는 링크, 나가는 링크, 하이퍼링크
                 summary: summary,
