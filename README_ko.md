@@ -1,8 +1,9 @@
-# **Generate Metadata of Markdown**
+# **마크다운 파일의 메타 데이터 생성**
 
 [English](https://typhoon-kim.github.io/generate-metadata-of-markdown/) | 한국어
 
-[![npm 버전](https://badge.fury.io/js/@typh007%2Fmarkdown-metadata.svg)](https://badge.fury.io/js/@typh007%2Fmarkdown-metadata)
+[![npm 버전](https://badgen.net/npm/v/@typh007/markdown-metadata)](https://www.npmjs.com/package/@typh007/markdown-metadata)
+[![다운로드](https://badgen.net/npm/dt/@typh007/markdown-metadata)](https://www.npmjs.com/package/@typh007/markdown-metadata)
 
 이 패키지는 디렉토리를 순회하여 `markdown` 파일에 대한 메타데이터 `JSON`파일을 생성합니다.
 

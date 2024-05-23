@@ -2,7 +2,8 @@
 
 English | [한국어](https://typhoon-kim.github.io/generate-metadata-of-markdown/README_ko.html)
 
-[![npm version](https://badge.fury.io/js/@typh007%2Fmarkdown-metadata.svg)](https://badge.fury.io/js/@typh007%2Fmarkdown-metadata)
+[![npm](https://badgen.net/npm/v/@typh007/markdown-metadata)](https://www.npmjs.com/package/@typh007/markdown-metadata)
+[![downloads](https://badgen.net/npm/dt/@typh007/markdown-metadata)](https://www.npmjs.com/package/@typh007/markdown-metadata)
 
 This package traverses directories and generates metadata `JSON` files for `markdown` files.
 
