@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import { existsSync } from 'fs';
-import { basename, dirname, extname, join, normalize } from 'path/posix';
+import { basename, dirname, extname, join, normalize, sep } from 'path/posix';
 import { CONSTANTS as CONST } from './main.js';
 import { createHash } from 'crypto';
 import { marked } from 'marked';
@@ -83,7 +83,9 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
             const content = await fs.readFile(file, "utf8");
             const { tags, links, images } = await extractTagsAndLinks(content);
 
-            const path = normalize(dirname(file));
+            let path = normalize(dirname(file));
+            if (withOutRoot) path = path.substring(normalize(ROOT).length);
+
             //const hash = createHash('sha256').update(file + content).digest('hex'); // 파일 내용에 대한 SHA-256 해시 계산
             const hash = createHash('md5').update(file + content).digest('hex'); // 파일 내용에 대한 MD5 해시 계산
 
@@ -93,10 +95,10 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
 
             noteList.push({
                 id: hash,
-                title: basename(file),
-                route: withOutRoot ? path.substring(normalize(ROOT).length) : path,
-                created: stat.ctime,
-                updated: stat.mtime,
+                name: basename(file, ".md"),
+                route: path.split(sep),
+                created: stat.ctime.getTime(),
+                updated: stat.mtime.getTime(),
                 outline: outline,
                 tags: tags, // 태그들
                 links: links.filter((link) => link.type === 'hyperlink'), // 들어오는 링크, 나가는 링크, 하이퍼링크
