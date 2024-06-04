@@ -130,6 +130,9 @@ dist
 .pnp.*
 
 # user add
-example/
+node_modules/
+dist/
+test/
 publish/
-data/
+metadata.json
+*/**/metadata.json

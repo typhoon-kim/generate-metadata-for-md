@@ -5,6 +5,11 @@ Makefile
 docs/
 examples/
 support/
+
+# user add
+node_modules/
+dist/
 test/
-data/
 publish/
+metadata.json
+*/**/metadata.json
