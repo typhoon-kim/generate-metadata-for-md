@@ -4,6 +4,7 @@ English | [한국어](https://typhoon-kim.github.io/generate-metadata-of-markdow
 
 [![npm](https://badgen.net/npm/v/@typh007/markdown-metadata)](https://www.npmjs.com/package/@typh007/markdown-metadata)
 [![downloads](https://badgen.net/npm/dt/@typh007/markdown-metadata)](https://www.npmjs.com/package/@typh007/markdown-metadata)
+[![jsDeliver](https://data.jsdelivr.com/v1/package/npm/@typh007/markdown-metadata/badge)](https://www.jsdelivr.com/package/npm/@typh007/markdown-metadata)
 
 This package traverses directories and generates metadata `JSON` files for `markdown` files.
 

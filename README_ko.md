@@ -4,6 +4,7 @@
 
 [![npm 버전](https://badgen.net/npm/v/@typh007/markdown-metadata)](https://www.npmjs.com/package/@typh007/markdown-metadata)
 [![다운로드](https://badgen.net/npm/dt/@typh007/markdown-metadata)](https://www.npmjs.com/package/@typh007/markdown-metadata)
+[![jsDeliver](https://data.jsdelivr.com/v1/package/npm/@typh007/markdown-metadata/badge)](https://www.jsdelivr.com/package/npm/@typh007/markdown-metadata)
 
 이 패키지는 디렉토리를 순회하여 `markdown` 파일에 대한 메타데이터 `JSON`파일을 생성합니다.
 
