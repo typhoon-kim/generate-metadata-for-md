@@ -1,6 +1,11 @@
 import { defineConfig } from 'vite';
+import packageJson from './package.json';
 
 export default defineConfig({
+  define: {
+    __APP_VERSION : JSON.stringify(packageJson.version),
+    __APP_DESCRIPTION : JSON.stringify(packageJson.description),
+  },
   build: {
     lib: {
       entry: 'src/index.js',
