@@ -10,6 +10,7 @@ export default defineConfig({
     lib: {
       entry: 'src/index.js',
       name: 'markdown-metadata',
+      formats: ['es', 'cjs', 'umd', 'iife'],
       fileName: (format) => `markdown-metadata.${format}.js`,
     },
     rollupOptions: {

@@ -9,7 +9,8 @@ support/
 # user add
 node_modules/
 dist/
-test/
+tests/
+example/
 publish/
 metadata.json
 */**/metadata.json

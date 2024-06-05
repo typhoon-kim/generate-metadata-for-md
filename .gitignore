@@ -132,7 +132,6 @@ dist
 # user add
 node_modules/
 dist/
-test/
 publish/
 metadata.json
 */**/metadata.json
