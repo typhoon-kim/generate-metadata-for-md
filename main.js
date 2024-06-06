@@ -4,7 +4,7 @@ export let CONSTANTS = {
         "./publish",
         "./example",
     ],
-    EXPORT_ROOT: "./data",
+    EXPORT_ROOT: "./dist",
     NOTE_LIST: "note_list.json",
     LINK_LIST: "link_list.json",
     TAG_LIST: "tag_list.json",
