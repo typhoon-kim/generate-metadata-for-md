@@ -7,16 +7,28 @@ import MarkdownIt from 'markdown-it';
 
 const md = new MarkdownIt();
 
-const noteList = [];
-const graphNodes = [];
-const graphLinks = [];
+const noteList: {
+    id: string;
+    name: string;
+    route: string[];
+    created: number;
+    updated: number;
+    outline: [{ depth: number, title: string, id: string }];
+    tags: string[];
+    links: { alias: string; url: string }[];
+    obsidianLinks: { alias: string; url: string }[];
+    summary: string;
+    images: string[];
+}[] = [];
+const graphNodes: { id: string; group: string; title: string; }[] = [];
+const graphLinks: { source: string; target: string; group: string; }[] = [];
 
-async function extractTags(content) {
+async function extractTags(content: string) {
     const tagPattern = /(^|\s)#(\w+)\b/g;
     return [...content.matchAll(tagPattern)].map(match => match[2]);
 }
 
-async function extractLinks(content) {
+async function extractLinks(content: string) {
     const hyperlinkPattern = /(?<!!)\[([^\]]+)\]\(([^)\s"]+)(?:\s+"[^"]*")?\)/g;
     const obsidianLinkPattern = /\[\[([^\]|]+)\|?([^\]]+)?\]\]/g;
     const imageSrcPattern = /<img[^>]+src=["'](http[^"']+)["']/g;
@@ -46,14 +58,14 @@ async function extractLinks(content) {
     return { hyperlinks: filteredLinks, obsidianLinks, images };
 }
 
-function extractSummary(content) {
+function extractSummary(content: string) {
     const htmlContent = md.render(content);
     const plainText = htmlContent.replace(/<[^>]*>/g, '');
     return plainText.slice(0, 300).replace(/\n/g, ' ') + (plainText.length > 300 ? '...' : '');
 }
 
-function extractOutline(content) {
-    const outline = [];
+function extractOutline(content: string) {
+    const outline: { depth: number; title: string; id: string; }[] = [];
     const tokens = md.parse(content, {});
 
     tokens.forEach(token => {
@@ -67,7 +79,7 @@ function extractOutline(content) {
     return outline;
 }
 
-function findNoteIdByUrl(url) {
+function findNoteIdByUrl(url: string): string | null | undefined {
     const filteredNotes = noteList.filter(n => n.name === url);
     switch (filteredNotes.length) {
         case 0:
@@ -75,11 +87,11 @@ function findNoteIdByUrl(url) {
         case 1:
             return filteredNotes[0].id;
         default:
-            return filteredNotes.find(n => n.route.join(sep).concat([sep, n.name]) === url);
+            return filteredNotes.find(n => n.route.join(sep).concat(sep).concat(n.name) === url)?.id;
     }
 }
 
-async function generateNoteMeta(file, ROOT, withOutRoot) {
+async function generateNoteMeta(file: any, ROOT: string, withOutRoot: boolean) {
     try {
         const stat = await fs.stat(file);
         if (stat.isDirectory()) {
@@ -89,7 +101,7 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
             const content = await fs.readFile(file, 'utf8');
             const { data, content: mdContent } = matter(content);
 
-            let tags, hyperlinks, obsidianLinks, images, summary, outline;
+            let tags: string[], hyperlinks, obsidianLinks: any[], images, summary, outline;
             if (Object.keys(data).length === 0) {
                 tags = await extractTags(content);
                 ({ hyperlinks, obsidianLinks, images } = await extractLinks(content));
@@ -104,6 +116,8 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
                 outline = data.outline || extractOutline(mdContent);
             }
 
+            tags = [...new Set(tags)];
+
             let path = normalize(dirname(file));
             if (withOutRoot) path = path.substring(normalize(ROOT).length);
 
@@ -112,7 +126,7 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
             const noteData = {
                 id: hash,
                 name: basename(file, '.md'),
-                route: path? path.split(sep) : [],
+                route: path ? path.split(sep) : [],
                 created: stat.ctime.getTime(),
                 updated: stat.mtime.getTime(),
                 outline: outline,
@@ -126,7 +140,7 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
             noteList.push(noteData);
 
             graphNodes.push({ id: hash, group: 'note', title: noteData.name });
-            tags.forEach(tag => {
+            tags.forEach((tag: string) => {
                 graphNodes.push({ id: tag, group: 'tag', title: tag });
                 graphLinks.push({ source: hash, target: tag, group: 'tag' });
             });
@@ -134,14 +148,14 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
         } else {
             console.log(`Skipping non-markdown file: ${file}`);
         }
-    } catch (err) {
+    } catch (err: any) {
         console.error(`Error processing file ${file}: ${err.message}`);
     }
 }
 
 function processGraphLinks() {
     noteList.forEach(note => {
-        note.obsidianLinks.forEach(link => {
+        note.obsidianLinks.forEach((link) => {
             const targetId = findNoteIdByUrl(link.url);
             if (targetId) {
                 graphLinks.push({ source: note.id, target: targetId, group: 'note' });
@@ -150,7 +164,7 @@ function processGraphLinks() {
     });
 }
 
-export async function generateMetadata(files, outputPath, withOutRoot) {
+export async function generateMetadata(files: string | string[], outputPath: string, withOutRoot: boolean) {
     if (typeof files === 'string') files = [files];
 
     await Promise.all(files.map(file => generateNoteMeta(file, file, withOutRoot)));
@@ -159,10 +173,10 @@ export async function generateMetadata(files, outputPath, withOutRoot) {
     processGraphLinks();
 
     const metadata = {
-        notedata: noteList,
+        notedata: [...new Set(noteList)],
         graphdata: {
-            nodes: graphNodes,
-            links: graphLinks
+            nodes: [...new Set(graphNodes)],
+            links: [...new Set(graphLinks)]
         }
     };
 

@@ -7,8 +7,10 @@ examples/
 support/
 
 # user add
+src
 node_modules/
-dist/
+esbuild.config.js
+jest.config.js
 tests/
 sample/
 publish/

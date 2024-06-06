@@ -1,4 +1,4 @@
-import { generateMetadata } from '../src/metadataGenerator';
+import { generateMetadata } from '../src/metadataGenerator.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -27,7 +27,7 @@ describe('Metadata Generator', () => {
 
     await fs.writeFile(path.join(contentDir, 'test.md'), markdownContent);
 
-    await generateMetadata(contentDir, outputDir);
+    await generateMetadata(contentDir, outputDir, true);
 
     const metadata = JSON.parse(await fs.readFile(path.join(outputDir, 'metadata.json'), 'utf8'));
 
