@@ -40,6 +40,79 @@ const publishPaht = "경로";
 
 `generateNoteList`에 두 번째 인자인 `withOutRoot`를 명시하여 `note_list`의 파일 경로에서 루트 경로를 포함히지 않을 수 있습니다.
 
+```sh
+./your-script.js
+```
+
+```sh
+./your-script.js -c /path/to/content
+
+```
+
+```sh
+./your-script.js --content /path/to/content --output /path/to/output --without-root
+```
+
+프론트매터
+
+```markdown
+---
+title: "Sample Document"
+description: "This is a sample document with front matter."
+created: 2024-06-04
+updated: 2024-06-04
+tags:
+  - example
+  - tutorial
+route:
+  - section1
+  - subsection2
+summary: "This document provides a tutorial example."
+---
+
+# Heading 1
+
+Content of the document goes here.
+
+## Heading 2
+
+More content here.
+```
+
+```json
+"notedata": [
+    {
+        "id": "id",
+        "name": "name",
+        "route": ["", "", ""],
+        "created": 1715498708342,
+        "updated": 1715498708342,
+        "outline": [
+            {"depth": 1, "title": "title", "id": "id"},
+        ],
+        "tags": [],
+        "links": [],
+        "summary": "summary",
+        "images": []
+    }
+],
+"graphdata": [
+    "nodes" : [
+        {   "id": "id",
+            "group": "note or tag",
+            "title": "title"
+        }
+    ],
+    "links" : [
+        {
+            "source": "source", 
+            "target": "target",
+            "group": "note or tag"
+        }
+    ],
+]
+```
+
 ```javascript
 import { generateNoteList } from "@typh007/markdown-metadata";
 
@@ -51,7 +124,6 @@ generateNoteList(publishPath, withOutRoot); // true or false -- default: false
 ## 결과
 
 `generateNoteList`함수를 호출하면 기본적으로 `./data`경로에 `note_list.json`, `link_list.json`, `note_list.json`, `tag_list.json` 파일이 생성됩니다.
-
 
 파일 생성 경로를 수정하려면 `setDataRoot`함수에 경로를 설정하세요.
 
