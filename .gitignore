@@ -133,5 +133,6 @@ dist
 node_modules/
 dist/
 publish/
+sample/
 metadata.json
 */**/metadata.json

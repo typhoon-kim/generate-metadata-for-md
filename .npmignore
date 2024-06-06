@@ -10,7 +10,7 @@ support/
 node_modules/
 dist/
 tests/
-example/
+sample/
 publish/
 metadata.json
 */**/metadata.json
