@@ -68,8 +68,15 @@ function extractOutline(content) {
 }
 
 function findNoteIdByUrl(url) {
-    const note = noteList.find(n => n.route.includes(url));
-    return note ? note.id : null;
+    const filteredNotes = noteList.filter(n => n.name === url);
+    switch (filteredNotes.length) {
+        case 0:
+            return null;
+        case 1:
+            return filteredNotes[0].id;
+        default:
+            return filteredNotes.find(n => n.route.join(sep).concat([sep, n.name]) === url);
+    }
 }
 
 async function generateNoteMeta(file, ROOT, withOutRoot) {
@@ -105,7 +112,7 @@ async function generateNoteMeta(file, ROOT, withOutRoot) {
             const noteData = {
                 id: hash,
                 name: basename(file, '.md'),
-                route: path.split(sep),
+                route: path? path.split(sep) : [],
                 created: stat.ctime.getTime(),
                 updated: stat.mtime.getTime(),
                 outline: outline,
